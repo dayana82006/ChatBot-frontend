@@ -27,40 +27,43 @@ const Login: React.FC = () => {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden">
-      <ParticlesBackground/>
-      <div className="auth-card w-full max-w-md bg-white shadow-lg rounded-xl p-8">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          Iniciar Sesión
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          {error && (
-            <p className="text-red-500 text-sm text-center">{error}</p>
-          )}
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition duration-200"
-          >
-            {loading ? "Ingresando..." : "Entrar"}
-          </Button>
-        </form>
-      </div>
+      <ParticlesBackground />
+      <div className="auth-card w-full max-w-lg bg-slate-50/95 shadow-xl rounded-2xl p-10 backdrop-blur-md border border-slate-200">
+  <h2 className="text-4xl font-extrabold text-center text-slate-700 mb-8">
+    Iniciar Sesión
+  </h2>
+  <form onSubmit={handleSubmit} className="space-y-6">
+    <input
+      type="email"
+      placeholder="Correo electrónico"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      required
+      className="w-full px-5 py-4 border border-slate-300 rounded-xl bg-white text-slate-700 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition"
+    />
+    <input
+      type="password"
+      placeholder="Contraseña"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      required
+      className="w-full px-5 py-4 border border-slate-300 rounded-xl bg-white text-slate-700 text-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 focus:border-sky-400 transition"
+    />
+    {error && (
+      <p className="text-red-500 text-base text-center font-medium">
+        {error}
+      </p>
+    )}
+    <Button
+      type="submit"
+      disabled={loading}
+      className="w-full bg-sky-600 hover:bg-sky-700 disabled:bg-sky-400 text-white font-semibold py-4 rounded-xl shadow-md text-lg transition duration-200"
+    >
+      {loading ? "Ingresando..." : "Entrar"}
+    </Button>
+  </form>
+</div>
+
     </div>
   );
 };
