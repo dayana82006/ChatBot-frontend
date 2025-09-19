@@ -1,1 +1,20 @@
 @import "tailwindcss";
+/* Scroll minimalista */
+.scroll-custom::-webkit-scrollbar {
+  width: 6px;              /* ancho del scroll */
+}
+
+.scroll-custom::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 116, 139, 0.4); /* slate-500 con opacidad */
+  border-radius: 9999px;   /* súper redondeado */
+}
+
+.scroll-custom::-webkit-scrollbar-track {
+  background: transparent; /* invisible */
+}
+
+/* Para Firefox */
+.scroll-custom {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 116, 139, 0.4) transparent;
+}
