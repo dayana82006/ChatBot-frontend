@@ -1,6 +1,7 @@
 import type { ChatProps } from "../../interfaces/Chat";
-import React, { useState } from "react";
+import React, { useState } from "react"; //Recordar importar useEffect 
 import { Scroll } from "../../components/Scroll"; 
+// import { getMessages } from "../../api/mensajes/mensajesApi";
 
 const datosFalsos: ChatProps[] = [
   {
@@ -74,6 +75,7 @@ const formatFecha = (fechaStr: string) => {
     year: "numeric",
   });
 };
+ 
 
 const formatHora = (fechaStr: string) => {
   const fecha = new Date(fechaStr);
@@ -86,6 +88,20 @@ const formatHora = (fechaStr: string) => {
 export const Dashboard: React.FC = () => {
   const [chatSeleccionado, setChatSeleccionado] = useState<ChatProps | null>(null);
   const [filtro, setFiltro] = useState<string>("");
+  // const [chats, setChats] = useState<ChatProps[]>([]);
+
+  // useEffect(() => {
+  //     getMessages()
+  //       .then(data => setChats(data))
+  //       .catch(err => {
+  //         console.error(err);
+  //       });
+  //   }, []);
+
+  // const chatsFiltradosVerdaderos = chats.filter(chat =>
+  //   chat.usuario.toLowerCase().includes(filtro.toLowerCase()) ||
+  //   chat.ultimoMensaje.toLowerCase().includes(filtro.toLowerCase())
+  // );
 
   const chatsFiltrados = datosFalsos.filter(chat =>
     chat.usuario.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -140,7 +156,6 @@ export const Dashboard: React.FC = () => {
         </Scroll>
       </div>
 
-      {/* Conversación */}
       <div
         className={`${
           chatSeleccionado ? "flex" : "hidden md:flex"
