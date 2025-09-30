@@ -13,20 +13,27 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     getMessages()
-      .then((data) => setChats(data))
+      .then((data) => {
+        const chatsAdaptados: ChatProps[] = data.map((chat: any) => ({
+          id: chat.id,
+          usuario: chat.user_id ?? "Usuario desconocido",
+          ultimoMensaje: chat.last_message ?? "",
+          fecha: chat.created_at ?? new Date().toISOString(),
+        }));
+        setChats(chatsAdaptados);
+      })
       .catch((err) => console.error("Error cargando chats:", err))
       .finally(() => setLoading(false));
   }, []);
 
   const chatsFiltrados = chats.filter(
     (chat) =>
-      chat.usuario.toLowerCase().includes(filtro.toLowerCase()) ||
-      chat.ultimoMensaje.toLowerCase().includes(filtro.toLowerCase())
+      chat.usuario?.toLowerCase().includes(filtro.toLowerCase()) ||
+      chat.ultimoMensaje?.toLowerCase().includes(filtro.toLowerCase())
   );
 
   return (
     <div className="h-screen flex flex-col md:flex-row font-sans bg-slate-100 p-2 md:p-6 gap-2 md:gap-6">
-      {/* Sidebar */}
       <div
         className={`${
           chatSeleccionado ? "hidden md:flex" : "flex"
@@ -49,17 +56,18 @@ export const Dashboard: React.FC = () => {
         <Scroll className="flex-1 px-4 pb-4">
           {loading ? (
             <div className="text-center text-slate-500">Cargando chats...</div>
-          ) : (
+          ) : chatsFiltrados.length > 0 ? (
             <ChatList
               chats={chatsFiltrados}
               chatSeleccionado={chatSeleccionado}
               onSelect={setChatSeleccionado}
             />
+          ) : (
+            <div className="text-center text-slate-400">No hay chats</div>
           )}
         </Scroll>
       </div>
 
-      {/* Panel de mensajes */}
       <div
         className={`${
           chatSeleccionado ? "flex" : "hidden md:flex"

@@ -1,5 +1,4 @@
-// src/api/messageApi.ts
-const API_URL = "http://localhost:4000/api";
+const API_URL = "http://localhost:8000";
 
 export async function getMessages() {
   const res = await fetch(`${API_URL}/messages`, {
