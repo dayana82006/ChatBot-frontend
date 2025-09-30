@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Button";
 import ParticlesBackground from "../../components/Particles";
+// import { login } from "../../api/auth/authApi";
 
 const Login: React.FC = () => {
   const navigate = useNavigate();
@@ -10,19 +11,24 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      if (email === "admin@demo.com" && password === "123456") {
+    try {
+      // const data = await login(email, password);
+
+      if ((email === "admin@demo.com" && password === "123456")) {
         navigate("/dashboard");
       } else {
         setError("Credenciales inválidas");
       }
+    } catch (err) {
+      setError("No se pudo conectar con el servidor");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   return (
