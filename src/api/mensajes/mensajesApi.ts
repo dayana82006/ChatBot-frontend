@@ -1,7 +1,11 @@
+import type { ChatDetalle } from "../../interfaces/ChatDetalle";
+import type { ApiChatResponse } from "../../interfaces/ApiResponse";
+import type { Mensaje } from "../../interfaces/Mensajes";
+
 const API_URL = "http://localhost:8000";
 
-export async function getMessages() {
-  const res = await fetch(`${API_URL}/messages`, {
+export async function getMessages(): Promise<ApiChatResponse> {
+  const res = await fetch(`${API_URL}/admin/chats`, {
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
@@ -10,33 +14,40 @@ export async function getMessages() {
 
   if (!res.ok) throw new Error("Error al obtener mensajes");
 
-  return await res.json();
+  return (await res.json()) as ApiChatResponse;
 }
 
-export async function sendMessage(content: string) {
-  const res = await fetch(`${API_URL}/messages`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-    },
-    body: JSON.stringify({ content }),
-  });
+export async function getChatDetalle(userId: string, channel = "web"): Promise<ChatDetalle> {
+  const res = await fetch(
+    `${API_URL}/admin/chats/${encodeURIComponent(userId)}?channel=${encodeURIComponent(channel)}`,
+    {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 
-  if (!res.ok) throw new Error("Error al enviar mensaje");
+  if (!res.ok) throw new Error("Error al obtener detalle del chat");
 
-  return await res.json();
-}
+  const payload = await res.json();
 
-export async function deleteMessage(id: number) {
-  const res = await fetch(`${API_URL}/messages/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
-    },
-  });
+  const mensajes: Mensaje[] = (payload.messages || []).map((m: any) => ({
+    id: String(m.id),
+    remitente: m.role === "user" || m.role === "usuario" ? "usuario" : "asistente",
+    texto: m.text ?? "",
+    hora: m.timestamp ?? new Date().toISOString(),
+  }));
 
-  if (!res.ok) throw new Error("Error al borrar mensaje");
+  const detalle: ChatDetalle = {
+    id: payload.user_id ?? userId,
+    usuario: payload.user_id ?? userId,
+    ultimoMensaje: payload.last_message ?? "",
+    hora: payload.updated_at ?? new Date().toISOString(),
+    canal: payload.channel ?? channel,
+    totalMensajes: mensajes.length,
+    mensajes,
+  };
 
-  return await res.json();
+  return detalle;
 }

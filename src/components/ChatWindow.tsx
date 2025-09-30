@@ -1,56 +1,47 @@
 import React from "react";
-import { type ChatProps } from "../interfaces/Chat";
-import { formatFecha } from "../utils/Formatters";
-import { MessageBubble } from "./Mensaje";
-import { Scroll } from "./Scroll";
+import { type ChatDetalle } from "../interfaces/ChatDetalle";
 
-interface Props {
-  chat: ChatProps | null;
+type Props = {
+  chat: ChatDetalle | null;
   onBack: () => void;
-}
+};
 
 export const ChatWindow: React.FC<Props> = ({ chat, onBack }) => {
-  if (!chat) {
-    return (
-      <div className="flex-1 flex items-center justify-center text-slate-500 italic">
-        Selecciona un chat para verlo
-      </div>
-    );
-  }
-
-  let fechaActual = "";
+  if (!chat) return <div className="flex items-center justify-center h-full text-gray-500">Selecciona un chat</div>;
 
   return (
-    <>
-      <div className="flex items-center justify-between p-4 border-b border-slate-200 font-semibold text-slate-700 rounded-t-2xl bg-sky-600 text-white shadow-sm">
+    <div className="flex flex-col h-full">
+      <header className="p-4 border-b flex items-center justify-between">
         <button
-          className="md:hidden text-white text-sm px-3 py-1 bg-sky-500 rounded-lg shadow"
+          className="md:hidden text-sky-600 font-semibold"
           onClick={onBack}
         >
           ← Volver
         </button>
-        <span>{chat.usuario}</span>
-        <div className="w-12 md:w-0" />
-      </div>
+        <h2 className="font-semibold text-gray-700">{chat.usuario}</h2>
+      </header>
 
-      <Scroll className="flex-1 p-3 md:p-6 space-y-4">
-        {chat.mensajes.map((msg) => {
-          const fechaMsg = formatFecha(msg.hora);
-          const mostrarFecha = fechaMsg !== fechaActual;
-          fechaActual = fechaMsg;
-
-          return (
-            <React.Fragment key={msg.id}>
-              {mostrarFecha && (
-                <div className="text-center text-xs text-slate-500 my-2">
-                  {fechaMsg}
-                </div>
-              )}
-              <MessageBubble msg={msg} />
-            </React.Fragment>
-          );
-        })}
-      </Scroll>
-    </>
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+        {chat.mensajes.length === 0 ? (
+            <p className="text-center text-gray-400 text-sm">No hay mensajes todavía</p>
+        ) : (
+            chat.mensajes.map((m) => (
+            <div
+                key={m.id}
+                className={`max-w-[70%] p-2 rounded-lg ${
+                m.remitente === "usuario"
+                    ? "bg-sky-500 text-white self-start"
+                    : "bg-gray-200 text-gray-700 self-end ml-auto"
+                }`}
+            >
+                <p>{m.texto}</p>
+                <span className="block text-xs text-gray-400 text-right">
+                {m.hora}
+                </span>
+            </div>
+            ))
+        )}
+        </div>
+    </div>
   );
 };

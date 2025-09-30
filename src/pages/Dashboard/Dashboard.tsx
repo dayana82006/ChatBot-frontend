@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { getMessages } from "../../api/mensajes/mensajesApi";
-import { type ChatProps } from "../../interfaces/Chat";
+import { type ChatListItem } from "../../interfaces/ChatList";
+import { type ChatDetalle } from "../../interfaces/ChatDetalle";
 import { ChatList } from "../../components/ChatList";
 import { ChatWindow } from "../../components/ChatWindow";
 import { Scroll } from "../../components/Scroll";
 
 export const Dashboard: React.FC = () => {
-  const [chats, setChats] = useState<ChatProps[]>([]);
-  const [chatSeleccionado, setChatSeleccionado] = useState<ChatProps | null>(null);
+  const [chats, setChats] = useState<ChatListItem[]>([]);
+  const [chatSeleccionado, setChatSeleccionado] = useState<ChatDetalle | null>(null);
   const [filtro, setFiltro] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     getMessages()
       .then((data) => {
-        const chatsAdaptados: ChatProps[] = data.map((chat: any) => ({
-          id: chat.id,
+        const chatsAdaptados: ChatListItem[] = data.items.map((chat, index) => ({
+          id: chat.user_id ?? String(index),
           usuario: chat.user_id ?? "Usuario desconocido",
           ultimoMensaje: chat.last_message ?? "",
-          fecha: chat.created_at ?? new Date().toISOString(),
+          hora: chat.updated_at ?? new Date().toISOString(),
         }));
         setChats(chatsAdaptados);
       })
@@ -60,7 +61,14 @@ export const Dashboard: React.FC = () => {
             <ChatList
               chats={chatsFiltrados}
               chatSeleccionado={chatSeleccionado}
-              onSelect={setChatSeleccionado}
+              onSelect={(chat) =>
+                setChatSeleccionado({
+                  ...chat,
+                  canal: chat.canal ?? "general", 
+                  totalMensajes: chat.totalMensajes ?? 0,
+                  mensajes: [],
+                })
+              }
             />
           ) : (
             <div className="text-center text-slate-400">No hay chats</div>
