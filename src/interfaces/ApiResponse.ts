@@ -1,13 +1,21 @@
+export interface ApiMessage {
+  id: number;
+  role: "user" | "assistant";
+  text: string;
+  timestamp: string;
+}
+
 export interface ApiChatItem {
+  last_message: string;
+  id: number;
   user_id: string;
   channel: string;
-  last_message: string;
+  created_at: string;
   updated_at: string;
-  count: number;
+  messages: ApiMessage[];
 }
 
 export interface ApiChatResponse {
   items: ApiChatItem[];
-  page: number;
   total: number;
 }

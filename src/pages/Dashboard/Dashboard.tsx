@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getMessages } from "../../api/mensajes/mensajesApi";
+import { getChatDetalle, getMessages } from "../../api/mensajes/mensajesApi";
 import { type ChatListItem } from "../../interfaces/ChatList";
 import { type ChatDetalle } from "../../interfaces/ChatDetalle";
 import { ChatList } from "../../components/ChatList";
@@ -20,6 +20,7 @@ export const Dashboard: React.FC = () => {
           usuario: chat.user_id ?? "Usuario desconocido",
           ultimoMensaje: chat.last_message ?? "",
           hora: chat.updated_at ?? new Date().toISOString(),
+          canal: chat.channel ?? "general", 
         }));
         setChats(chatsAdaptados);
       })
@@ -58,18 +59,18 @@ export const Dashboard: React.FC = () => {
           {loading ? (
             <div className="text-center text-slate-500">Cargando chats...</div>
           ) : chatsFiltrados.length > 0 ? (
-            <ChatList
-              chats={chatsFiltrados}
-              chatSeleccionado={chatSeleccionado}
-              onSelect={(chat) =>
-                setChatSeleccionado({
-                  ...chat,
-                  canal: chat.canal ?? "general", 
-                  totalMensajes: chat.totalMensajes ?? 0,
-                  mensajes: [],
-                })
+          <ChatList
+            chats={chatsFiltrados}
+            chatSeleccionado={chatSeleccionado}
+            onSelect={async (chat) => {
+              try {
+                const detalle = await getChatDetalle(chat.usuario, chat.canal ?? "web");
+                setChatSeleccionado(detalle);
+              } catch (err) {
+                console.error("Error cargando detalle del chat:", err);
               }
-            />
+            }}
+          />
           ) : (
             <div className="text-center text-slate-400">No hay chats</div>
           )}

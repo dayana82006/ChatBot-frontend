@@ -2,7 +2,7 @@ import type { ChatDetalle } from "../../interfaces/ChatDetalle";
 import type { ApiChatResponse } from "../../interfaces/ApiResponse";
 import type { Mensaje } from "../../interfaces/Mensajes";
 
-const API_URL = "http://localhost:8000";
+const API_URL = "http://127.0.0.1:8000";
 
 export async function getMessages(): Promise<ApiChatResponse> {
   const res = await fetch(`${API_URL}/admin/chats`, {
