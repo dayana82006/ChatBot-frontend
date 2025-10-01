@@ -35,13 +35,13 @@ export const Dashboard: React.FC = () => {
   );
 
   return (
-    <div className="h-screen flex flex-col md:flex-row font-sans bg-slate-100 p-2 md:p-6 gap-2 md:gap-6">
+    <div className="h-screen flex flex-col md:flex-row font-sans bg-[#161717] p-2 md:p-6 gap-2 md:gap-6">
       <div
         className={`${
           chatSeleccionado ? "hidden md:flex" : "flex"
         } w-full md:w-1/3 bg-slate-50 rounded-2xl shadow-xl border border-slate-200 flex-col`}
       >
-        <div className="p-4 border-b border-slate-200 font-semibold text-slate-700 rounded-t-2xl bg-sky-600 text-white shadow-sm">
+        <div className="p-4 border-b border-slate-200 font-semibold text-slate-700 rounded-t-2xl bg-[#144D37] text-white shadow-sm">
           Chats
         </div>
 

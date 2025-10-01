@@ -30,12 +30,12 @@ export const ChatWindow: React.FC<Props> = ({ chat, onBack }) => {
                 key={m.id}
                 className={`max-w-[70%] p-2 rounded-lg ${
                 m.remitente === "usuario"
-                    ? "bg-sky-500 text-white self-start"
-                    : "bg-gray-200 text-gray-700 self-end ml-auto"
+                    ? "bg-[#161717] text-white self-start"
+                    : "bg-[#FF0000] text-gray-700 self-end ml-auto"
                 }`}
             >
                 <p>{m.texto}</p>
-                <span className="block text-xs text-gray-400 text-right">
+                <span className="block text-xs text-black text-right">
                 {m.hora}
                 </span>
             </div>
