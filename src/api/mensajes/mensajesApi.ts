@@ -47,7 +47,25 @@ export async function getChatDetalle(userId: string, channel = "web"): Promise<C
     canal: payload.channel ?? channel,
     totalMensajes: mensajes.length,
     mensajes,
+    channel: ""
   };
 
   return detalle;
+}
+
+// Nueva función para enviar mensajes por HTTP (si lo necesitas)
+export async function sendMessage(userId: string, content: string, channel = "web"): Promise<void> {
+  const res = await fetch(`${API_URL}/admin/chats/${encodeURIComponent(userId)}/messages`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${localStorage.getItem("token") || ""}`,
+    },
+    body: JSON.stringify({
+      content,
+      channel,
+    }),
+  });
+
+  if (!res.ok) throw new Error("Error al enviar mensaje");
 }

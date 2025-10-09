@@ -3,4 +3,5 @@ export interface ChatListItem {
   usuario: string;
   ultimoMensaje: string;
   hora: string;
+  canal?: string;
 }
