@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getChatDetalle, getMessages } from "../../api/mensajes/mensajesApi";
+import { getChatDetalle, getMessages, getUserOrders } from "../../api/mensajes/mensajesApi";
 import { type ChatListItem } from "../../interfaces/ChatList";
 import { type ChatDetalle, type WebSocketMessage } from "../../interfaces/ChatDetalle";
 import { type Mensaje } from "../../interfaces/Mensajes";
@@ -13,6 +13,8 @@ export const Dashboard: React.FC = () => {
   const [chatSeleccionado, setChatSeleccionado] = useState<ChatDetalle | null>(null);
   const [filtro, setFiltro] = useState("");
   const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState<"mysql" | "redis">("mysql");
+  const [userOrders, setUserOrders] = useState<any[]>([]);
 
   // 🔥 INTEGRACIÓN DEL WEBSOCKET PARA ADMIN
   const { isConnected, sendMessage: sendWsMessage } = useWebSocket({
@@ -24,7 +26,6 @@ export const Dashboard: React.FC = () => {
 
   // 🎯 Función que procesa los mensajes del WebSocket
   const handleWebSocketMessage = (wsMessage: WebSocketMessage) => {
-
     // Ignorar pings del servidor
     if (wsMessage.type === "ping") {
       return;
@@ -40,15 +41,13 @@ export const Dashboard: React.FC = () => {
     // Crear el nuevo mensaje en el formato correcto
     const nuevoMensaje: Mensaje = {
       id: String(Date.now()),
-      remitente: role === "user" || role === "usuario" ? "usuario" : "asistente",
+      remitente: role === "user" ? "usuario" : "asistente",
       texto: texto,
       hora: timestamp,
     };
 
-
     // 1️⃣ Si el chat está abierto, agregar el mensaje automáticamente
     if (chatSeleccionado && userId === chatSeleccionado.usuario) {
-      
       setChatSeleccionado((prev) => {
         if (!prev) return prev;
         
@@ -71,8 +70,6 @@ export const Dashboard: React.FC = () => {
           totalMensajes: prev.totalMensajes + 1,
         };
       });
-    } else {
-      console.log("ℹ️ Mensaje de otro usuario, actualizando lista solamente");
     }
 
     // 2️⃣ Actualizar la lista de chats
@@ -123,6 +120,34 @@ export const Dashboard: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
+  const handleSelectChat = async (chat: ChatListItem) => {
+    try {
+      // Siempre cargar desde MySQL para tener el historial completo persistente
+      const detalle = await getChatDetalle(chat.usuario, chat.canal ?? "web", "mysql");
+      console.log("✅ Detalle cargado desde MySQL:", detalle);
+      setChatSeleccionado(detalle);
+      
+      // Cargar órdenes del usuario
+      try {
+        const orders = await getUserOrders(chat.usuario);
+        setUserOrders(orders.orders || []);
+      } catch (orderErr) {
+        console.error("❌ Error cargando órdenes:", orderErr);
+        setUserOrders([]);
+      }
+    } catch (err) {
+      console.error("❌ Error cargando detalle del chat:", err);
+      // Fallback a Redis si MySQL falla
+      try {
+        const detalleRedis = await getChatDetalle(chat.usuario, chat.canal ?? "web", "redis");
+        console.log("✅ Detalle cargado desde Redis (fallback):", detalleRedis);
+        setChatSeleccionado(detalleRedis);
+      } catch (redisErr) {
+        console.error("❌ Error cargando desde Redis también:", redisErr);
+      }
+    }
+  };
+
   const chatsFiltrados = chats.filter(
     (chat) =>
       chat.usuario?.toLowerCase().includes(filtro.toLowerCase()) ||
@@ -154,13 +179,15 @@ export const Dashboard: React.FC = () => {
         </div>
 
         <div className="p-4">
-          <input
-            type="text"
-            className="w-full px-4 py-3 border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm"
-            placeholder="Buscar chats..."
-            value={filtro}
-            onChange={(e) => setFiltro(e.target.value)}
-          />
+          <div className="flex gap-4 mb-3">
+            <input
+              type="text"
+              className="flex-1 px-4 py-3 border border-slate-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-400 text-sm"
+              placeholder="Buscar chats..."
+              value={filtro}
+              onChange={(e) => setFiltro(e.target.value)}
+            />
+          </div>
         </div>
 
         <Scroll className="flex-1 px-4 pb-4">
@@ -180,15 +207,7 @@ export const Dashboard: React.FC = () => {
                     }
                   : null
               }
-              onSelect={async (chat) => {
-                try {
-                  const detalle = await getChatDetalle(chat.usuario, chat.canal ?? "web");
-                  console.log("✅ Detalle cargado:", detalle);
-                  setChatSeleccionado(detalle);
-                } catch (err) {
-                  console.error("❌ Error cargando detalle del chat:", err);
-                }
-              }}
+              onSelect={handleSelectChat}
             />
           ) : (
             <div className="text-center text-slate-400">No hay chats</div>
@@ -201,7 +220,14 @@ export const Dashboard: React.FC = () => {
           chatSeleccionado ? "flex" : "hidden md:flex"
         } w-full md:w-2/3 bg-slate-50 rounded-2xl shadow-xl border border-slate-200 flex-col`}
       >
-        <ChatWindow chat={chatSeleccionado} onBack={() => setChatSeleccionado(null)} />
+        <ChatWindow 
+          chat={chatSeleccionado} 
+          orders={userOrders}
+          onBack={() => {
+            setChatSeleccionado(null);
+            setUserOrders([]);
+          }} 
+        />
       </div>
     </div>
   );

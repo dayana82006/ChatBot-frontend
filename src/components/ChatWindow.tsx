@@ -3,10 +3,11 @@ import { type ChatDetalle } from "../interfaces/ChatDetalle";
 
 type Props = {
   chat: ChatDetalle | null;
+  orders: any[];
   onBack: () => void;
 };
 
-export const ChatWindow: React.FC<Props> = ({ chat, onBack }) => {
+export const ChatWindow: React.FC<Props> = ({ chat, orders, onBack }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -40,28 +41,32 @@ export const ChatWindow: React.FC<Props> = ({ chat, onBack }) => {
             {chat.channel}
           </span>
         </div>
+        <div className="text-xs text-gray-500">
+          {chat.totalMensajes} mensajes
+          {orders.length > 0 && ` • ${orders.length} pedidos`}
+        </div>
       </header>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
         {chat.mensajes.map((m) => (
-        <div
-          key={`${m.texto}-${m.hora}-${Math.random()}`}
-          className={`flex ${m.remitente === "usuario" ? "justify-start" : "justify-end"}`}
-        >
           <div
-            className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
-              m.remitente === "usuario"
-                ? "bg-[#161717] text-white"
-                : "bg-[#144D37] text-white"
-            }`}
+            key={`${m.id}-${m.texto}-${m.hora}`}
+            className={`flex ${m.remitente === "usuario" ? "justify-start" : "justify-end"}`}
           >
-            <p className="whitespace-pre-wrap">{m.texto}</p>
-            <span className="block text-xs text-gray-200 mt-1 text-right">
-              {m.hora}
-            </span>
+            <div
+              className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
+                m.remitente === "usuario"
+                  ? "bg-[#161717] text-white"
+                  : "bg-[#144D37] text-white"
+              }`}
+            >
+              <p className="whitespace-pre-wrap">{m.texto}</p>
+              <span className="block text-xs text-gray-200 mt-1 text-right">
+                {new Date(m.hora).toLocaleTimeString()}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
 
         <div ref={messagesEndRef} />
       </div>
